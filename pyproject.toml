@@ -1,14 +1,18 @@
 [tool.poetry]
 name = "langchain-deepread"
 version = "0.1.0"
-description = ""
-authors = ["ptonlix <260431910@qq.com>"]
+description = "DeepRead -> Daily Entropy reduction"
+authors = ["ptonlix <baird0917@163.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
 langchain = "^0.0.345"
 openai = "^1.3.7"
+injector = "^0.21.0"
+fastapi = "^0.104.1"
+langserve = "^0.0.32"
+uvicorn = "^0.24.0.post1"
 
 
 [build-system]
