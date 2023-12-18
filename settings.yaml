@@ -24,7 +24,7 @@ ui:
   path: /
 
 llm:
-  mode: local
+  mode: openai
 
 embedding:
   # Should be matching the value above in most cases
@@ -48,4 +48,7 @@ sagemaker:
   embedding_endpoint_name: huggingface-pytorch-inference-2023-11-03-07-41-36-479
 
 openai:
-  api_key: ${OPENAI_API_KEY:}
+  temperature: 1
+  modelname: "gpt-3.5-turbo-1106"
+  api_base: ${OPENAI_API_BASE:https://oa.api2d.net/v1}
+  api_key: ${OPENAI_API_KEY:fk211622-Eq3KWICYUxzzsf9ACloJ34s1hFaZG5PO}

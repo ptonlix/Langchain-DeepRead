@@ -9,6 +9,8 @@ from injector import Injector
 
 from langchain_deepread.paths import docs_path
 from langchain_deepread.settings.settings import Settings
+from langchain_deepread.server.summary.summary_router import summary_router
+from langchain_deepread.server.crawler.crawler_router import crawler_router
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +92,8 @@ def create_app(root_injector: Injector) -> FastAPI:
 
         app.openapi = custom_openapi  # type: ignore[method-assign]
 
-        # app.include_router(completions_router)
+        app.include_router(summary_router)
+        app.include_router(crawler_router)
 
         settings = root_injector.get(Settings)
         if settings.server.cors.enabled:

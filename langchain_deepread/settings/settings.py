@@ -155,7 +155,10 @@ class SagemakerSettings(BaseModel):
 
 
 class OpenAISettings(BaseModel):
+    temperature: float
+    modelname: str
     api_key: str
+    api_base: str
 
 
 class UISettings(BaseModel):
