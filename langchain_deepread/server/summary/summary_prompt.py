@@ -7,8 +7,14 @@ from pydantic import BaseModel
 class SummaryParam(BaseModel):
     documents: str
     one_words_length: int = 30
+    content_nums: int = 5
+    one_content_length: int = 20
     title_length: int = 10
-    outline_nums: int = 3
+    section_title_length: int = 10
+    section_list_length: int = 2
+    one_section_length: int = 20
+    min_section_nums: int = 5
+    max_section_nums: int = 10
     tag_nums: int = 10
     qa_nums: int = 3
     # output_format: str
@@ -22,9 +28,11 @@ SUMMARY_PROMPT = """\
 ## Workflow
 1. 分析文章##Article Content的内容
 3. 输出针对这篇文章的一句话总结，长度不超过{one_words_length}个字,记录为summary
-4. 按列表输出针对这篇文章的关键信息点,个数必须大于5个,记录为content
+4. 按列表输出针对这篇文章的关键信息点,个数必须大于{content_nums}个,每个长度必须大于{one_content_length}个字,记录为content
 5. 输出针对这篇文章的文章标题，长度不超过{title_length}个字,记录为title
-6. 必须采用MarkDown格式,按H2标题或列表形式,分要点输出针对这篇文章的大纲, H2标题段落一定大于{outline_nums}段,记录为outline
+6. 分析文章的主要段落,输出每一个段落的主题,记录为section_title,长度大于{section_title_length}个字;\
+    按列表输出每一个段落的关键信息,记录为section_list,列表项必须大于{section_list_length}个,长度必须大于{one_section_length}个字;\
+        将一个段落主题和关键信息组合成一个对象,将全部对象组成一个列表输出,记录为outline。outline列表对象包含个数一定大于{min_section_nums}个和小于{max_section_nums}个。
 7. 按列表输出针对这篇文章的标签，不超过{tag_nums}个
 8. 按列表输出针对这篇文章的{qa_nums}个QA问答,记录为qa
 
@@ -34,11 +42,11 @@ The output should be formatted as a JSON instance that conforms to the JSON sche
 summary: str
 content: list[str]
 title: str
-outline: str
+outline: list[dict]
 tags: list[str]
 qa: list[str]
 As an example, for the schema
-{{"summary": "", "content": ["", ""], "title": "", "outline": "", "tags": ["", ""], "qa": ["Q:xxx\\nA:xxx\\n"]}}
+{{"summary": "", "content": ["", ""], "title": "",  "outline":[{{"section_title":"", "section_list":["",""]}}],, "tags": ["", ""], "qa": ["Q:xxx\\nA:xxx\\n"]}}
 </div>
 
 ## Article Content
@@ -142,19 +150,21 @@ The output should be formatted as a JSON instance that conforms to the JSON sche
 summary: str
 content: list[str]
 title: str
-outline: str
+outline: list[dict]
 tags: list[str]
 qa: list[str]
 As an example, for the schema
-{{"summary": "", "content": ["", ""], "title": "", "outline": "", "tags": ["", ""], "qa": ["Q:xxx\\nA:xxx\\n"]}}
+{{"summary": "", "content": ["", ""], "title": "",  "outline":[{{"section_title":"", "section_list":["",""]}}],, "tags": ["", ""], "qa": ["Q:xxx\\nA:xxx\\n"]}}
 </div>
 
 ## Workflow
 1. ##Json Content的内容为一篇文章的多个总结部分
 2. 将多个summary含义融合输出为1个summary,长度不能超过{one_words_length}个字符
-3. 将多个content按上下顺序合并成一个,个数必须大于5个
+3. 将多个content按上下顺序合并成一个,个数必须大于{content_nums}个,每个长度必须大于{one_content_length}个字
 4. 将多个title含义融合输出为1个title,长度不能超过{title_length}个字符
-5. 将多个outline按上下顺序拼接成一个,必须采用MarkDown格式,按H2以上标题或列表形式,分要点输出针对这篇文章的大纲, 大纲段落一定大于{outline_nums}段,记录为outline
+5. 将多个outline按上下顺序合并成一个, section_title长度大于{section_title_length}个字;\
+    section_list中列表项必须大于{section_list_length}个,长度必须大于{one_section_length}个字;\
+        outline列表对象包含个数一定大于{min_section_nums}个和小于{max_section_nums}个
 6. 将多个tags含义融合,严格限定不超过{tag_nums}个tag
 7. 将多个qa含义融合,严格限定输出{qa_nums}条QA记录
 8. 输出格式保持##Output format不变,返回合并后的json

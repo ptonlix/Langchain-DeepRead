@@ -1,5 +1,4 @@
 from injector import inject, singleton
-from regex import F
 from langchain_deepread.components.llm.llm_component import LLMComponent
 from langchain.schema.output_parser import StrOutputParser
 from langchain.output_parsers import PydanticOutputParser
@@ -38,7 +37,7 @@ class GPTResponse(BaseModel):
     summary: str
     content: list[str]
     title: str
-    outline: str
+    outline: list[dict]
     tags: list[str]
     qa: list[str]
 

@@ -13,7 +13,6 @@ from selenium import webdriver
 from selenium.webdriver.remote.webdriver import BaseWebDriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from injector import singleton
 from fake_useragent import UserAgent
 
 
@@ -250,6 +249,22 @@ class ArticleCrawlerHTTP(ArticleCrawerBase):
 """
 
 
+def singleton(cls):
+    instances = {}
+
+    def get_instance(*args, **kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+
+    def delete_instance():
+        if cls in instances:
+            del instances[cls]
+
+    get_instance.delete_instance = delete_instance
+    return get_instance
+
+
 @singleton
 class WebDriverChrome(webdriver.Chrome):
     def __init__(self):
@@ -281,13 +296,21 @@ class ArticleCrawlerWebDriver(ArticleCrawerBase):
         self.webdriver_chrome = webdriver
 
     def article_webdriver(self, url) -> Article | None:
-        # 更新UserAgent
-        self.webdriver_chrome.execute_cdp_cmd(
-            "Network.setUserAgentOverride",
-            {"userAgent": UserAgent().random},
-        )
-        self.webdriver_chrome.get(url)
-        return self.article
+        try:
+            # 更新UserAgent
+            self.webdriver_chrome.execute_cdp_cmd(
+                "Network.setUserAgentOverride",
+                {"userAgent": UserAgent().random},
+            )
+        except Exception as e:
+            logger.warning(e)
+            self.webdriver_chrome.quit()
+            time.sleep(3)
+            WebDriverChrome.delete_instance()  # 删除单例子
+            self.webdriver_chrome = WebDriverChrome()
+        finally:
+            self.webdriver_chrome.get(url)
+            return self.article
 
     """
     获取文章标题
