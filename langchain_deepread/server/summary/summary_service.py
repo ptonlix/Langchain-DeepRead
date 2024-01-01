@@ -40,6 +40,7 @@ class GPTResponse(BaseModel):
     outline: list[dict]
     tags: list[str]
     qa: list[str]
+    recommends: list[str]
 
 
 class TokenInfo(BaseModel):
@@ -86,10 +87,13 @@ class SummaryService:
         resobj = None
         try:
             sp = SummaryParam(**kwargs)
+            print(SummarizationPromptTemplate)
             chain = SummarizationPromptTemplate | self.llm_service.llm | output_parser
 
             with get_openai_callback() as cb:
                 ret = chain.invoke(sp.model_dump())
+                print(ret)
+                print(123)
                 gptresponse = json.loads(ret)
                 tokeninfo = TokenInfo(
                     total_tokens=cb.total_tokens,
@@ -194,15 +198,3 @@ class SummaryService:
         except Exception as e:
             logger.exception(e)
         return resobj
-        # merge_list = []
-        # for i in range(len(summary_res_list) / 2):
-        #     msp = MergeSummaryParam(
-        #         fisrt_summary=summary_res_list[i * 2],
-        #         second_summary=summary_res_list[i * 2 + 1],
-        #     )
-        #     merge_list.append[msp.model_dump()]
-
-        # merge_res_list = merge_chain.batch(merge_list)
-
-        # if len(summary_res_list) % 2:
-        # 奇数个

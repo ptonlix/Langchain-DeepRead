@@ -38,17 +38,24 @@ class SummaryBody(BaseModel):
     )
     tag_nums: int = Field(default=10, description="Maximum Article Tag nums")
     qa_nums: int = Field(default=3, description="Minimum Article QA nums")
-
+    recommend_nums: int = Field(default=3, description="Minimum Article recommend nums")
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "documents": "xxx",
+                    "documents": "xxxx",
                     "one_words_length": 30,
+                    "content_nums": 5,
+                    "one_content_length": 20,
                     "title_length": 10,
-                    "outline_nums": 3,
+                    "section_title_length": 10,
+                    "section_list_length": 2,
+                    "one_section_length": 20,
+                    "min_section_nums": 5,
+                    "max_section_nums": 10,
                     "tag_nums": 10,
                     "qa_nums": 3,
+                    "recommend_nums": 3,
                 }
             ]
         }
