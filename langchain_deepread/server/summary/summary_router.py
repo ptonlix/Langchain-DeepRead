@@ -72,5 +72,4 @@ def summary(request: Request, body: SummaryBody) -> RestfulModel:
     Summarize the article based on the given content and requirements
     """
     service = request.state.injector.get(SummaryService)
-    print(body)
     return RestfulModel(data=service.summary(**body.model_dump()))

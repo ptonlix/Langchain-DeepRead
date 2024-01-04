@@ -60,6 +60,9 @@ class SummaryResponse(BaseModel):
 class SummaryService:
     @inject
     def __init__(self, llm_component: LLMComponent, settings: Settings) -> None:
+        self.settings = settings
+        if self.settings.llm.mode == "mock":
+            llm_component.llm = "summary"
         self.llm_service = llm_component
         self.max_summary_length = 14500  # 14500个Token长度
 
@@ -87,13 +90,11 @@ class SummaryService:
         resobj = None
         try:
             sp = SummaryParam(**kwargs)
-            print(SummarizationPromptTemplate)
+            logger.info(SummarizationPromptTemplate)
             chain = SummarizationPromptTemplate | self.llm_service.llm | output_parser
 
             with get_openai_callback() as cb:
                 ret = chain.invoke(sp.model_dump())
-                print(ret)
-                print(123)
                 gptresponse = json.loads(ret)
                 tokeninfo = TokenInfo(
                     total_tokens=cb.total_tokens,

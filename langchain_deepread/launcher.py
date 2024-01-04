@@ -11,8 +11,25 @@ from langchain_deepread.paths import docs_path
 from langchain_deepread.settings.settings import Settings
 from langchain_deepread.server.summary.summary_router import summary_router
 from langchain_deepread.server.crawler.crawler_router import crawler_router
+from langchain_deepread.server.qa.qa_router import qa_router
+from langchain_deepread.server.health.health_router import health_router
+from langchain_deepread.server.moderation.moderation_router import moderation_router
 
+# logging.basicConfig(
+#     level=logging.DEBUG,
+#     format="%(asctime)s [%(levelname)s] - %(message)s",
+#     datefmt="%Y-%m-%d %H:%M:%S",
+# )
 logger = logging.getLogger(__name__)
+# handler = TimedRotatingFileHandler(
+#     filename=PROJECT_ROOT_PATH / "log/app.log",
+#     when="midnight",
+#     interval=1,
+#     backupCount=7,
+# )
+# handler.suffix = "%Y-%m-%d.log"
+# handler.encoding = "utf-8"
+# logger.addHandler(handler)
 
 
 def create_app(root_injector: Injector) -> FastAPI:
@@ -22,34 +39,20 @@ def create_app(root_injector: Injector) -> FastAPI:
 
         tags_metadata = [
             {
-                "name": "Ingestion",
-                "description": "High-level APIs covering document ingestion -internally "
-                "managing document parsing, splitting,"
-                "metadata extraction, embedding generation and storage- and ingested "
-                "documents CRUD."
-                "Each ingested document is identified by an ID that can be used to filter the "
-                "context"
-                "used in *Contextual Completions* and *Context Chunks* APIs.",
+                "name": "Crawler",
+                "description": "Support mainstream online article information crawler",
             },
             {
-                "name": "Contextual Completions",
-                "description": "High-level APIs covering contextual Chat and Completions. They "
-                "follow OpenAI's format, extending it to "
-                "allow using the context coming from ingested documents to create the "
-                "response. Internally"
-                "manage context retrieval, prompt engineering and the response generation.",
+                "name": "Summary",
+                "description": "Article content summary, support one sentence summary, article core points, article guide, article labels and other information",
             },
             {
-                "name": "Context Chunks",
-                "description": "Low-level API that given a query return relevant chunks of "
-                "text coming from the ingested"
-                "documents.",
+                "name": "QA",
+                "description": "Based on the article content online Q&A QA, recall the article content by question similarity and answer the question",
             },
             {
-                "name": "Embeddings",
-                "description": "Low-level API to obtain the vector representation of a given "
-                "text, using an Embeddings model."
-                "Follows OpenAI's embeddings API format.",
+                "name": "Moderation",
+                "description": "Check whether the user uses the content in accordance with the policy",
             },
             {
                 "name": "Health",
@@ -69,10 +72,9 @@ def create_app(root_injector: Injector) -> FastAPI:
                 title="Langchain-DeepRead",
                 description=description,
                 version="0.1.0",
-                summary="PrivateGPT is a production-ready AI project that allows you to "
-                "ask questions to your documents using the power of Large Language ",
+                summary="DeepRead is an intelligent summary platform that allows users to start intelligent reading like marking a plaque",
                 contact={
-                    "url": "https://github.com/imartinez/privateGPT",
+                    "url": "https://github.com/ptonlix/Langchain-DeepRead",
                 },
                 license_info={
                     "name": "Apache 2.0",
@@ -94,6 +96,9 @@ def create_app(root_injector: Injector) -> FastAPI:
 
         app.include_router(summary_router)
         app.include_router(crawler_router)
+        app.include_router(qa_router)
+        app.include_router(health_router)
+        app.include_router(moderation_router)
 
         settings = root_injector.get(Settings)
         if settings.server.cors.enabled:

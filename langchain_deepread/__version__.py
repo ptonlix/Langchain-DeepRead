@@ -13,4 +13,4 @@ if TYPE_CHECKING:
 # that.
 version: Callable[[str], str] = metadata.version
 
-__version__ = version("ssprompt")
+__version__ = version("langchan_deepread")
