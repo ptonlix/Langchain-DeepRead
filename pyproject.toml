@@ -16,6 +16,8 @@ uvicorn = "^0.24.0.post1"
 bs4 = "^0.0.1"
 fake-useragent = "^1.4.0"
 tiktoken = "^0.5.2"
+parsel = "^1.8.1"
+selenium = "^4.16.0"
 
 
 [build-system]
