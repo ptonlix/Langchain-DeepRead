@@ -20,6 +20,9 @@ from langchain_deepread.components.article_crawler.tmt import (
 from langchain_deepread.components.article_crawler.toutiao import (
     TouTiaoCrawler,
 )
+from langchain_deepread.components.article_crawler.juejin import (
+    JJCrawler,
+)
 from langchain_deepread.components.article_crawler.wx import WxCrawler
 from langchain_deepread.components.article_crawler.zhihu import ZhihuCrawler
 from langchain_deepread.components.article_crawler.base import Article
@@ -89,6 +92,9 @@ class ArticleCrawlerComponent:
             case "zhuanlan.zhihu":
                 crawler = ZhihuCrawler()
                 art = crawler.article_http(url)
+            case "juejin":
+                crawler = JJCrawler()
+                art = crawler.article_webdriver(url)
             case _:
                 raise NotSupportDomainException
 

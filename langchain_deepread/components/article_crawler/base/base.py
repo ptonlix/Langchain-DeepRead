@@ -14,7 +14,8 @@ from selenium.webdriver.remote.webdriver import BaseWebDriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from fake_useragent import UserAgent
-
+import tiktoken
+from langchain_deepread.settings.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class Article(BaseModel):
     author: str = Field(description="文章作者")
     content: str = Field(description="文章正文")
     source: str = Field(description="文章来源")
+    token_num: int = Field(description="文章Token总数")
 
 
 def retry(max_retries=3, delay=1):
@@ -88,6 +90,7 @@ class ArticleCrawerBase(AbstractArticleCrawler):
     def __init__(self, source: Optional[str] = "base"):
         self._articleobj = None
         self._source = source
+        self._token_model = settings().openai.modelname
 
     """
     获取文章来源
@@ -118,15 +121,28 @@ class ArticleCrawerBase(AbstractArticleCrawler):
         return "content"
 
     """
+    获取文章token
+    """
+
+    def num_tokens_from_string(self, string: str) -> int:
+        """Returns the number of tokens in a text string."""
+        encoding = tiktoken.encoding_for_model(self._token_model)
+        num_tokens = len(encoding.encode(string))
+        return num_tokens
+
+    """
     获取文章内容
     """
 
     def _get_article(self) -> Article:
+        content = self.get_article_content()
+        token_num = self.num_tokens_from_string(content)
         return Article(
             title=self.get_article_title(),
             author=self.get_article_author(),
-            content=self.get_article_content(),
+            content=content,
             source=self.get_article_source(),
+            token_num=token_num,
         )
 
     @property
